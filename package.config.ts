@@ -11,7 +11,7 @@ export default defineConfig({
       'ae-forgotten-export': 'off',
       'ae-incompatible-release-tags': 'off',
       'ae-internal-missing-underscore': 'off',
-      'ae-missing-release-tag': 'off',
-    },
-  },
+      'ae-missing-release-tag': 'off'
+    }
+  }
 })

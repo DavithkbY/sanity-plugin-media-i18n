@@ -51,7 +51,6 @@ export const FACETS: (SearchFacetDivider | SearchFacetGroup | SearchFacetInputPr
   inputs.inCurrentDocument,
   divider,
   inputs.title,
-  inputs.altText,
   inputs.creditLine,
   inputs.description,
   divider,

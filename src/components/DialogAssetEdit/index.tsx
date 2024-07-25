@@ -1,12 +1,12 @@
 import {zodResolver} from '@hookform/resolvers/zod'
 import type {MutationEvent} from '@sanity/client'
 import {Box, Button, Card, Flex, Stack, Tab, TabList, TabPanel, Text} from '@sanity/ui'
-import {Asset, AssetFormData, DialogAssetEditProps, TagSelectOption} from '@types'
+import {Asset, AssetFormData, DialogAssetEditProps, LocalizedField, TagSelectOption} from '@types'
 import groq from 'groq'
 import React, {ReactNode, useCallback, useEffect, useRef, useState} from 'react'
 import {SubmitHandler, useForm} from 'react-hook-form'
 import {useDispatch} from 'react-redux'
-import {WithReferringDocuments, useDocumentStore, useColorSchemeValue} from 'sanity'
+import {SanityDocument, useColorSchemeValue, useDocumentStore, WithReferringDocuments} from 'sanity'
 import {assetFormSchema} from '../../formSchema'
 import useTypedSelector from '../../hooks/useTypedSelector'
 import useVersionedClient from '../../hooks/useVersionedClient'
@@ -28,7 +28,7 @@ import FormFieldInputTextarea from '../FormFieldInputTextarea'
 import FormSubmitButton from '../FormSubmitButton'
 import Image from '../Image'
 import {useToolOptions} from '../../contexts/ToolOptionsContext'
-
+import cloneDeep from 'lodash.clonedeep'
 type Props = {
   children: ReactNode
   dialog: DialogAssetEditProps
@@ -39,6 +39,8 @@ const DialogAssetEdit = (props: Props) => {
     children,
     dialog: {assetId, id, lastCreatedTag, lastRemovedTagIds}
   } = props
+
+  const {locales} = useToolOptions()
 
   const client = useVersionedClient()
   const scheme = useColorSchemeValue()
@@ -53,7 +55,7 @@ const DialogAssetEdit = (props: Props) => {
 
   // Generate a snapshot of the current asset
   const [assetSnapshot, setAssetSnapshot] = useState(assetItem?.asset)
-  const [tabSection, setTabSection] = useState<'details' | 'references'>('details')
+  const [tabSection, setTabSection] = useState<string>('details')
 
   const currentAsset = assetItem ? assetItem?.asset : assetSnapshot
   const allTagOptions = getTagSelectOptions(tags)
@@ -63,15 +65,37 @@ const DialogAssetEdit = (props: Props) => {
   // Check if credit line options are configured
   const {creditLine} = useToolOptions()
 
+  const getDefaultLocaleValues = () => {
+    return locales.reduce((acc, curr) => {
+      acc[curr.id] = ''
+      return acc
+    }, {} as LocalizedField)
+  }
+
+  const replaceNullValues = (object: LocalizedField) => {
+    const objectCopy = cloneDeep(object)
+    for (const key in objectCopy) {
+      // Check if the value is null
+      if (objectCopy[key] === null) {
+        // Change the value to an empty string
+        objectCopy[key] = ''
+      }
+    }
+
+    return objectCopy
+  }
+
   const generateDefaultValues = useCallback(
     (asset?: Asset): AssetFormData => {
       return {
-        altText: asset?.altText || '',
+        altTexts: asset?.altTexts ? replaceNullValues(asset.altTexts) : getDefaultLocaleValues(),
         creditLine: asset?.creditLine || '',
-        description: asset?.description || '',
+        descriptions: asset?.descriptions
+          ? replaceNullValues(asset?.descriptions)
+          : getDefaultLocaleValues(),
         originalFilename: asset?.originalFilename || '',
         opt: {media: {tags: assetTagOptions}},
-        title: asset?.title || ''
+        titles: asset?.titles ? replaceNullValues(asset?.titles) : getDefaultLocaleValues()
       }
     },
     [assetTagOptions]
@@ -138,7 +162,6 @@ const DialogAssetEdit = (props: Props) => {
       if (!assetItem?.asset) {
         return
       }
-
       const sanitizedFormData = sanitizeFormData(formData)
 
       dispatch(
@@ -239,6 +262,47 @@ const DialogAssetEdit = (props: Props) => {
     return null
   }
 
+  const localeTabs = locales.map(locale => (
+    <Tab
+      key={`locale-tab-${locale.id}`}
+      aria-controls={`locale-tab-${locale.id}`}
+      disabled={formUpdating}
+      id={`locale-tab-${locale.id}`}
+      label={`${locale.name} settings`}
+      onClick={() => setTabSection(`locale-tab-${locale.id}`)}
+      selected={tabSection === `locale-tab-${locale.id}`}
+      size={2}
+    />
+  ))
+
+  const defaultTabs = (isLoading: boolean, uniqueReferringDocuments: SanityDocument[]) => [
+    <Tab
+      key="details-panel"
+      aria-controls="details-panel"
+      disabled={formUpdating}
+      id="details-tab"
+      label="Details"
+      onClick={() => setTabSection('details')}
+      selected={tabSection === 'details'}
+      size={2}
+    />,
+    <Tab
+      key="details-panel"
+      aria-controls="references-panel"
+      disabled={formUpdating}
+      id="references-tab"
+      label={`References${
+        !isLoading && Array.isArray(uniqueReferringDocuments)
+          ? ` (${uniqueReferringDocuments.length})`
+          : ''
+      }`}
+      onClick={() => setTabSection('references')}
+      selected={tabSection === 'references'}
+      size={2}
+    />,
+    ...localeTabs
+  ]
+
   return (
     <Dialog footer={<Footer />} header="Asset details" id={id} onClose={handleClose} width={3}>
       {/*
@@ -254,30 +318,7 @@ const DialogAssetEdit = (props: Props) => {
               return (
                 <>
                   {/* Tabs */}
-                  <TabList space={2}>
-                    <Tab
-                      aria-controls="details-panel"
-                      disabled={formUpdating}
-                      id="details-tab"
-                      label="Details"
-                      onClick={() => setTabSection('details')}
-                      selected={tabSection === 'details'}
-                      size={2}
-                    />
-                    <Tab
-                      aria-controls="references-panel"
-                      disabled={formUpdating}
-                      id="references-tab"
-                      label={`References${
-                        !isLoading && Array.isArray(uniqueReferringDocuments)
-                          ? ` (${uniqueReferringDocuments.length})`
-                          : ''
-                      }`}
-                      onClick={() => setTabSection('references')}
-                      selected={tabSection === 'references'}
-                      size={2}
-                    />
-                  </TabList>
+                  <TabList space={2}>{defaultTabs(isLoading, referringDocuments)}</TabList>
 
                   {/* Form fields */}
                   <Box as="form" marginTop={4} onSubmit={handleSubmit(onSubmit)}>
@@ -290,6 +331,46 @@ const DialogAssetEdit = (props: Props) => {
 
                     {/* Hidden button to enable enter key submissions */}
                     <button style={{display: 'none'}} tabIndex={-1} type="submit" />
+
+                    {locales.map(locale => {
+                      return (
+                        <TabPanel
+                          key={`tabpanel-${locale.id}`}
+                          aria-labelledby={`${locale.name} Settings`}
+                          id={`locale-tab-${locale.id}`}
+                          hidden={tabSection !== `locale-tab-${locale.id}`}
+                        >
+                          {/* Title */}
+                          <FormFieldInputText
+                            {...register(`titles.${locale.id}`)}
+                            disabled={formUpdating}
+                            error={errors?.titles?.message?.message}
+                            label="Title"
+                            name={`titles.${locale.id}`}
+                            value={currentAsset?.titles?.[locale.id]}
+                          />
+                          {/* Description */}
+                          <FormFieldInputTextarea
+                            {...register(`descriptions.${locale.id}`)}
+                            disabled={formUpdating}
+                            error={errors?.descriptions?.message?.message}
+                            label="Description"
+                            name={`descriptions.${locale.id}`}
+                            rows={5}
+                            value={currentAsset?.descriptions?.[locale.id]}
+                          />
+                          {/* Alt text */}
+                          <FormFieldInputText
+                            {...register(`altTexts.${locale.id}`)}
+                            name={`altTexts.${locale.id}`}
+                            disabled={formUpdating}
+                            label="Alt Text"
+                            error={errors?.altTexts?.message?.message}
+                            value={currentAsset?.altTexts?.[locale.id]}
+                          />
+                        </TabPanel>
+                      )
+                    })}
 
                     {/* Panel: details */}
                     <TabPanel
@@ -318,34 +399,6 @@ const DialogAssetEdit = (props: Props) => {
                           label="Filename"
                           name="originalFilename"
                           value={currentAsset?.originalFilename}
-                        />
-                        {/* Title */}
-                        <FormFieldInputText
-                          {...register('title')}
-                          disabled={formUpdating}
-                          error={errors?.title?.message}
-                          label="Title"
-                          name="title"
-                          value={currentAsset?.title}
-                        />
-                        {/* Alt text */}
-                        <FormFieldInputText
-                          {...register('altText')}
-                          disabled={formUpdating}
-                          error={errors?.altText?.message}
-                          label="Alt Text"
-                          name="altText"
-                          value={currentAsset?.altText}
-                        />
-                        {/* Description */}
-                        <FormFieldInputTextarea
-                          {...register('description')}
-                          disabled={formUpdating}
-                          error={errors?.description?.message}
-                          label="Description"
-                          name="description"
-                          rows={5}
-                          value={currentAsset?.description}
                         />
                         {/* CreditLine */}
                         {creditLine?.enabled && (

@@ -10,23 +10,33 @@ import * as z from 'zod'
 import {assetFormSchema, tagFormSchema, tagOptionSchema} from '../formSchema'
 import {RootReducerState} from '../modules/types'
 
+export type Locale = {
+  name: string
+  id: string
+}
+
 export type MediaToolOptions = {
   maximumUploadSize?: number
-  creditLine: {
+  creditLine?: {
     enabled: boolean
     excludeSources?: string | string[]
   }
+  locales?: Locale[]
+}
+
+export type LocalizedField = {
+  [key: string]: string
 }
 
 type CustomFields = {
-  altText?: string
-  description?: string
+  altTexts?: LocalizedField
+  descriptions?: LocalizedField
   opt?: {
     media?: {
-      tags?: SanityReference[]
+      tags?: SanityReference
     }
   }
-  title?: string
+  titles?: LocalizedField
 }
 
 type SearchFacetInputCommon = {
