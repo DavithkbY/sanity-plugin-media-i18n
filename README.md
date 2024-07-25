@@ -1,3 +1,11 @@
+> This is a **Sanity Studio v3** plugin.
+
+## Installation
+
+```sh
+npm install sanity-plugin-media
+```
+
 # Sanity Media (for Sanity Studio v3)
 
 > This plugin is for **Sanity Studio v3**.  
@@ -272,3 +280,11 @@ on how to run this plugin with hot-reload in the studio.
 Run the ["CI & Release" workflow](https://github.com/robinpyon/sanity-plugin-media/actions/workflows/main.yml). Make sure to select the main branch and check "Release new version".
 
 Semantic release will only release on configured branches, so it is safe to run the workflow on any branch.
+
+
+### Release new version
+
+Run ["CI & Release" workflow](https://github.com/sanity-io/sanity-plugin-media/actions/workflows/main.yml).
+Make sure to select the main branch and check "Release new version".
+
+Semantic release will only release on configured branches, so it is safe to run release on any branch.

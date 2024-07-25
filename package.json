@@ -1,7 +1,7 @@
 {
-  "name": "sanity-plugin-media",
-  "version": "2.3.2",
-  "description": "This version of `sanity-plugin-media` is for Sanity Studio V3.",
+  "name": "sanity-plugin-media-i18n",
+  "version": "2.3.4",
+  "description": "This version of `sanity-plugin-media` is for Sanity Studio V3. This version supports i18n fields",
   "keywords": [
     "sanity",
     "cms",
@@ -12,16 +12,16 @@
     "asset",
     "browser"
   ],
-  "homepage": "https://github.com/sanity-io/sanity-plugin-media#readme",
+  "homepage": "https://github.com/DavithkbY/sanity-plugin-media-i18n",
   "bugs": {
-    "url": "https://github.com/sanity-io/sanity-plugin-media/issues"
+    "url": "https://github.com/DavithkbY/sanity-plugin-media-i18n/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:sanity-io/sanity-plugin-media.git"
+    "url": "git@github.com:DavithkbY/sanity-plugin-media-i18n.git"
   },
   "license": "MIT",
-  "author": "Sanity.io <hello@sanity.io>",
+  "author": "Davit Hakobyan",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -131,5 +131,13 @@
   },
   "engines": {
     "node": ">=14"
+  },
+  "publishConfig": { "access": "public" },
+  "sanityPlugin": {
+    "verifyPackage": {
+      "tsc": false
+    }
   }
 }
+
+
