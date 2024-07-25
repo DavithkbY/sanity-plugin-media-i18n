@@ -3,13 +3,15 @@
 ## Installation
 
 ```sh
-npm install sanity-plugin-media
+npm install sanity-plugin-media-i18n
 ```
 
 # Sanity Media (for Sanity Studio v3)
 
 > This plugin is for **Sanity Studio v3**.  
-> The Sanity Studio v2 version of this plugin is no longer maintained, but still accessible on the [v2 branch](https://github.com/sanity-io/sanity-plugin-media/tree/studio-v2).
+> The Sanity Studio v2 version of this plugin is no longer maintained, but still accessible on the [v2 branch](https://github.com/sanity-io/sanity-plugin-media-i18n/tree/studio-v2).
+
+> **This plugin is a fork of the original media plugin but with support for i18n tags,titles and descriptions**.  
 
 ## What is it?
 
@@ -30,6 +32,7 @@ _Individual asset view_
 
 #### Manage and organise your assets
 
+- **Support for translatable fields like title, description and alt text**
 - Support for batch uploads with drag and drop support
 - Edit text fields native to Sanity's asset documents, such as `title`, `description`, `altText` and `originalFilename`
 - View asset metadata and a limited subset of EXIF data, if present
@@ -58,13 +61,13 @@ _Individual asset view_
 In your Sanity project folder:
 
 ```sh
-npm install --save sanity-plugin-media
+npm install --save sanity-plugin-media-i18n
 ```
 
 or
 
 ```sh
-yarn add sanity-plugin-media
+yarn add sanity-plugin-media-i18n
 ```
 
 ## Usage
@@ -72,7 +75,7 @@ yarn add sanity-plugin-media
 Add it as a plugin in your `sanity.config.ts` (or .js) file:
 
 ```js
-import {media} from 'sanity-plugin-media'
+import {media} from 'sanity-plugin-media-i18n'
 
 export default defineConfig({
   // ...
@@ -87,7 +90,7 @@ This will enable the Media plugin as both a standalone tool (accessible in your 
 You can configure your studio to use this asset source either exclusively, or conditionally enable it based on the type of asset (image or file).
 
 ```js
-import {media, mediaAssetSource} from 'sanity-plugin-media'
+import {media, mediaAssetSource} from 'sanity-plugin-media-i18n'
 
 export default defineConfig({
   // ...
@@ -111,6 +114,7 @@ export default defineConfig({
   //...
   plugins: [
     media({
+      locales: [{name: 'English', id: 'en'}, {name: 'Dutch', id: 'nl'}],
       creditLine: {
         enabled: true,
         // boolean - enables an optional "Credit Line" field in the plugin.
@@ -127,7 +131,10 @@ export default defineConfig({
 ```
 
 ## Known issues
-
+<details>
+<summary>Filtering doesn't work on title, description and alt texts</summary>
+- This is in the works, it will come soon
+</details>
 <details>
 <summary>There isn't a way to edit asset fields directly from the desk (without opening the plugin)</summary>
 
@@ -163,6 +170,20 @@ export default defineConfig({
 </details>
 
 ## FAQ
+
+#### I18N
+<details>
+<summary>What language is default?</summary>
+- English is default
+</details>
+<details>
+<summary>Do I need to provide languages?</summary>
+- No, we will use English as default
+</details>
+<details>
+<summary>Is there a limit on the amount of languages?</summary>
+- No, there is none
+</details>
 
 #### Asset fields
 
@@ -277,14 +298,6 @@ on how to run this plugin with hot-reload in the studio.
 
 ### Release new version
 
-Run the ["CI & Release" workflow](https://github.com/robinpyon/sanity-plugin-media/actions/workflows/main.yml). Make sure to select the main branch and check "Release new version".
+Run the ["CI & Release" workflow](https://github.com/DavithkbY/sanity-plugin-media-i18n/actions/workflows/main.yml). Make sure to select the main branch and check "Release new version".
 
 Semantic release will only release on configured branches, so it is safe to run the workflow on any branch.
-
-
-### Release new version
-
-Run ["CI & Release" workflow](https://github.com/sanity-io/sanity-plugin-media/actions/workflows/main.yml).
-Make sure to select the main branch and check "Release new version".
-
-Semantic release will only release on configured branches, so it is safe to run release on any branch.
