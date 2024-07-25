@@ -6,16 +6,16 @@ export const tagOptionSchema = z.object({
 })
 
 export const assetFormSchema = z.object({
-  altText: z.string().trim().optional(),
+  altTexts: z.record(z.string()),
+  titles: z.record(z.string()),
   creditLine: z.string().trim().optional(),
-  description: z.string().trim().optional(),
+  descriptions: z.record(z.string()),
   opt: z.object({
     media: z.object({
       tags: z.array(tagOptionSchema).nullable()
     })
   }),
-  originalFilename: z.string().trim().min(1, {message: 'Filename cannot be empty'}),
-  title: z.string().trim().optional()
+  originalFilename: z.string().trim().min(1, {message: 'Filename cannot be empty'})
 })
 
 export const tagFormSchema = z.object({
