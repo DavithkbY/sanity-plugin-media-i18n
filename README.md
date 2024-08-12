@@ -18,7 +18,7 @@ npm install sanity-plugin-media-i18n
 ![npm-v](https://img.shields.io/npm/v/sanity-plugin-media?style=flat-square)
 ![npm-dw](https://img.shields.io/npm/dw/sanity-plugin-media?style=flat-square)
 
-A convenient way to browse, manage and refine your [Sanity](https://www.sanity.io/) assets with the addition if i18n translateable meta fields.
+A convenient way to browse, manage and refine your [Sanity](https://www.sanity.io/) assets with the addition of i18n translatable meta fields.
 
 Use it standalone as a browser, or optionally hook it up as a [custom asset source](https://www.sanity.io/docs/custom-asset-sources) and use it to power both image and file selection too.
 
